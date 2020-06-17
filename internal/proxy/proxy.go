@@ -124,10 +124,26 @@ func (proxy *ProxyServer) Start() error {
 	log.Info().Msgf("Proxy server listening!")
 	log.Info().Msgf("Once your console pings phantom, you should see replies below.")
 
+    go proxy.idleCleanupLoop()
+
 	// Start processing everything else using the proxy listener
 	proxy.readLoop(proxy.server)
 
 	return nil
+}
+
+func (proxy *ProxyServer) idleCleanupLoop() {
+	for range time.Tick(proxy.prefs.IdleTimeout) {
+	//for currentTime := range time.Tick(proxy.clientMap.IdleCheckInterval) {
+		if proxy.dead.IsSet() {
+			break
+		}
+
+        if proxy.clientMap.IsEmpty() {
+            log.Info().Msgf("Empty Proxy");
+            proxy.Close()
+        }
+    }
 }
 
 func (proxy *ProxyServer) Close() {

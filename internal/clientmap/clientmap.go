@@ -42,6 +42,10 @@ func New(idleTimeout time.Duration, idleCheckInterval time.Duration) *ClientMap 
 	return &clientMap
 }
 
+func (cm *ClientMap) IsEmpty() (bool) {
+    return len(cm.clients) == 0
+}
+
 // Close cleans up all clients
 func (cm *ClientMap) Close() {
 	if cm.dead.IsSet() {
